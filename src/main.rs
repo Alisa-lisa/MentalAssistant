@@ -1,7 +1,6 @@
 use structopt::StructOpt;
+use strum_macros;
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
-
 
 //  mentalassist
 // help: all functionality
@@ -12,11 +11,11 @@ use strum_macros::EnumIter;
 //     --type: Enumertaion for the available forms (type of tracking information) 
 //     --file: str path to csv file where to APPEND the information to
 
-#[derive(Debug, strum_macros::ToString)]
+#[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
 pub enum EntryType {
-    #[strum(serialize="ActivityTracking: act")]
+    #[strum(serialize="ActivityTracking: act ")]
     Activity,
-    #[strum(serialize="MedicationConsumption: med")]
+    #[strum(serialize="MedicationConsumption: med ")]
     Medication
 }
 
@@ -32,14 +31,16 @@ enum Tracker {
     Info,
     #[structopt(about="Save tracking entiry of a specific type. See 'trackme list' for available tracking types")]
     Save {
-        #[structopt(short="f", long="file")]
+        #[structopt(short, long)]
         file: String,
-        #[structopt(short="et", long="entry_type")]
-        entry_type: String// How to use enum here? EntryType
+        #[structopt(short, long)]
+        entry: String// How to use enum here? EntryType
     },
     #[structopt(about="Show available tracking entry types")]
     List
 }
+
+
 
 fn main() {
     let args = Tracker::from_args(); // we can get multiple args later on, for now it is List anf Info
@@ -55,8 +56,15 @@ fn main() {
     // the input)
     //
     match args {
-        Tracker::List => println!("Available tracking data entries are: {:?}", format!("{}, {}", EntryType::Medication.to_string(), EntryType::Activity.to_string())),
+        Tracker::List => {
+            let mut available_forms = String::from("Available tracking forms are: ");
+            for t in EntryType::iter() {
+                available_forms.push_str(&t.to_string());
+            }
+            println!("{}", available_forms);
+        },
         Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
-        _ => println!("Still in construction"),
+        _ => println!("Saving"),
     }
+
 }
