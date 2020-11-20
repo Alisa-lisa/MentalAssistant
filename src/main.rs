@@ -1,5 +1,6 @@
 use structopt::StructOpt;
-use std::io;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 
 //  mentalassist
@@ -11,11 +12,14 @@ use std::io;
 //     --type: Enumertaion for the available forms (type of tracking information) 
 //     --file: str path to csv file where to APPEND the information to
 
-#[derive(Debug)]
-enum EntryType {
-    Activity(String),
-    Medication(String)
+#[derive(Debug, strum_macros::ToString)]
+pub enum EntryType {
+    #[strum(serialize="ActivityTracking: act")]
+    Activity,
+    #[strum(serialize="MedicationConsumption: med")]
+    Medication
 }
+
 
 
 #[derive(Debug, StructOpt)]
@@ -38,7 +42,21 @@ enum Tracker {
 }
 
 fn main() {
-    let args = Tracker::from_args();
+    let args = Tracker::from_args(); // we can get multiple args later on, for now it is List anf Info
     println!("Args are {:?}", args);
 
+    // all this code should be moved into separate module and properly encapsulated
+    // Info: present information on main general info .txt
+    //
+    // List: show available forms (data entry types) that are defined in the code through EntryType
+    //
+    // Save: read in the user input, save it as a row in provided csv file (this should be
+    // implemented after the data structures are defined, for now just return different wording of
+    // the input)
+    //
+    match args {
+        Tracker::List => println!("Available tracking data entries are: {:?}", format!("{}, {}", EntryType::Medication.to_string(), EntryType::Activity.to_string())),
+        Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
+        _ => println!("Still in construction"),
+    }
 }

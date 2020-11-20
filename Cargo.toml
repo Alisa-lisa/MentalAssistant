@@ -3,8 +3,8 @@ authors = ["alisa <alisa.dammer@gmail.com>"]
 edition = "2018"
 name = "trackme"
 version = "0.1.0"
-
 [dependencies]
 clap = "*"
 structopt = "~0.3"
-
+strum = "0.19"
+strum_macros = "0.19"
