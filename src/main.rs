@@ -34,10 +34,18 @@ enum Tracker {
         #[structopt(short, long)]
         file: String,
         #[structopt(short, long)]
-        entry: String// How to use enum here? EntryType
+        entrytype: String, // How to use enum here? EntryType
+        #[structopt(short, long)]
+        data: String
+
     },
     #[structopt(about="Show available tracking entry types")]
-    List
+    List,
+    #[structopt(about="Show string structure of the specific entry type")]
+    Show {
+        #[structopt(short, long)]
+        entrytype: String // here i want to show appropriate values for the entrytype
+    }
 }
 
 
@@ -50,7 +58,7 @@ fn main() {
     // Info: present information on main general info .txt
     //
     // List: show available forms (data entry types) that are defined in the code through EntryType
-    //
+    // Show + type of data entry: show how a string should look like to pe parsable
     // Save: read in the user input, save it as a row in provided csv file (this should be
     // implemented after the data structures are defined, for now just return different wording of
     // the input)
@@ -64,9 +72,10 @@ fn main() {
             println!("{}", available_forms);
         },
         Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
-        Tracker::Save{file, entry} => {
-            println!("Saving {:?} to file {:?}", entry, file);
+        Tracker::Save{file, entrytype, data} => {
+            println!("Saving data {:?} of type {:?} to file {:?}", data, entrytype, file);
         },
+        _ => println!("Under construction"),
     }
 
 }
