@@ -14,9 +14,9 @@ use strum::IntoEnumIterator;
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
 pub enum EntryType {
     #[strum(serialize="ActivityTracking: act ")]
-    Activity,
+    Activity(String),
     #[strum(serialize="MedicationConsumption: med ")]
-    Medication
+    Medication(String)
 }
 
 
@@ -64,7 +64,9 @@ fn main() {
             println!("{}", available_forms);
         },
         Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
-        _ => println!("Saving"),
+        Tracker::Save{file, entry} => {
+            println!("Saving {:?} to file {:?}", entry, file);
+        },
     }
 
 }
