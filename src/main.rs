@@ -4,7 +4,7 @@ use strum_macros;
 use strum::IntoEnumIterator;
 
 mod meds;
-use meds::meds_forms::{MedikamentationForm};
+use meds::meds_forms;
 
 //  mentalassist
 // help: all functionality
@@ -37,6 +37,28 @@ impl FromStr for EntryType {
     }
 }
 
+#[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
+pub enum InformationMode {
+    #[strum(serialize="example")]
+    Example,
+    #[strum(serialize="info")]
+    Strcture 
+}
+
+
+impl FromStr for InformationMode {
+    type Err = std::string::ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "info" => Ok(InformationMode::Strcture),
+            "example" => Ok(InformationMode::Example),
+            _ => panic!("Unknown intarction mode"),
+        }
+    }
+    
+}
+
 #[derive(Debug, StructOpt)]
 #[structopt(name="Mental Assistant", version="0.0.1", 
             author, 
@@ -44,24 +66,26 @@ impl FromStr for EntryType {
             global_settings = &[structopt::clap::AppSettings::ColoredHelp],
             usage="trackme [SUBCOMMANDS] .. [OPTIONS] ..")]
 enum Tracker {
-    #[structopt(about="Prints out general information about this tool and available tracking approaches")]
+    /// Prints out general information about this tool and available tracking approaches
     Info,
-    #[structopt(about="Save tracking entiry of a specific type. See 'trackme list' for available tracking types")]
+    /// Save tracking entiry of a specific type. See 'trackme list' for available tracking types
     Save {
         #[structopt(short, long)]
         file: String,
         #[structopt(short, long)]
-        entrytype: EntryType, // How to use enum here? EntryType
+        entrytype: EntryType, 
         #[structopt(short, long)]
         data: String
 
     },
-    #[structopt(about="Show available tracking entry types")]
+    /// Show available tracking entry types
     List,
-    #[structopt(about="Show string structure of the specific entry type")]
+    /// Show string structure of the specific entry type
     Show {
         #[structopt(short, long)]
-        entrytype: String // here i want to show appropriate values for the entrytype
+        entrytype: EntryType,
+        #[structopt(long)]
+        usage: InformationMode
     }
 }
 
@@ -69,8 +93,6 @@ enum Tracker {
 
 fn main() {
     let args = Tracker::from_args(); // we can get multiple args later on, for now it is List anf Info
-    println!("Args are {:?}", args);
-
     // all this code should be moved into separate module and properly encapsulated
     // Info: present information on main general info .txt
     //
@@ -92,7 +114,14 @@ fn main() {
         Tracker::Save{file, entrytype, data} => {
             println!("Saving data {:?} of type {:?} to file {:?}", data, entrytype, file);
         },
-        _ => println!("Under construction"),
+        Tracker::Show{entrytype, usage} => {
+            match entrytype {
+                EntryType::Medication => {
+                   println!("{:?}", meds_forms::show_info(&usage.to_string()));
+                },
+                EntryType::Activity => println!("Under construction"),
+            }
+        }
     }
 
 }
