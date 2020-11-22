@@ -1,6 +1,10 @@
+use std::str::FromStr;
 use structopt::StructOpt;
 use strum_macros;
 use strum::IntoEnumIterator;
+
+mod meds;
+use meds::meds_forms::{MedikamentationForm};
 
 //  mentalassist
 // help: all functionality
@@ -14,17 +18,30 @@ use strum::IntoEnumIterator;
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
 pub enum EntryType {
     #[strum(serialize="ActivityTracking: act ")]
-    Activity(String),
+    Activity,
     #[strum(serialize="MedicationConsumption: med ")]
-    Medication(String)
+    Medication
 }
 
+impl FromStr for EntryType {
+    type Err = std::string::ParseError;
 
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parsed_string = s.trim();
+        match parsed_string {
+            "act" => Ok(EntryType::Activity),
+            "med" => Ok(EntryType::Medication),
+            _ => panic!("Unidentified variant of EntryType enum"),
+        }
+
+    }
+}
 
 #[derive(Debug, StructOpt)]
 #[structopt(name="Mental Assistant", version="0.0.1", 
-            author="Alisa Dammer <alisa.dammer@gmail.com>", 
-            about="Self tracking in various forms and for various purposes", 
+            author, 
+            about, 
+            global_settings = &[structopt::clap::AppSettings::ColoredHelp],
             usage="trackme [SUBCOMMANDS] .. [OPTIONS] ..")]
 enum Tracker {
     #[structopt(about="Prints out general information about this tool and available tracking approaches")]
@@ -34,7 +51,7 @@ enum Tracker {
         #[structopt(short, long)]
         file: String,
         #[structopt(short, long)]
-        entrytype: String, // How to use enum here? EntryType
+        entrytype: EntryType, // How to use enum here? EntryType
         #[structopt(short, long)]
         data: String
 
