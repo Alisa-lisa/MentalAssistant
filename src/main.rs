@@ -1,10 +1,10 @@
 mod meds;
+mod activity;
 mod cli;
-use meds::meds_forms;
 use cli::{Tracker, EntryType};
 use strum::IntoEnumIterator;
 use structopt::StructOpt;
-
+use chrono;
 
 fn main() {
     let args = Tracker::from_args();     
@@ -23,9 +23,11 @@ fn main() {
         Tracker::Show{entrytype, usage} => {
             match entrytype {
                 EntryType::Medication => {
-                   println!("{:?}", meds_forms::show_info(&usage.to_string()));
+                   println!("{:?}", meds::show_info(&usage.to_string()));
                 },
-                EntryType::Activity => println!("Under construction"),
+                EntryType::Activity => {
+                    println!("{}", activity::show_info(&usage.to_string()));
+                },
             }
         }
     }

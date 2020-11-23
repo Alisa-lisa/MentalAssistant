@@ -73,7 +73,7 @@ pub enum Tracker {
     Show {
         #[structopt(short, long, help="use list command to get all available entry types")]
         entrytype: EntryType,
-        #[structopt(short, long, help="use --info for structure of the record, --example for a valid example")]
+        #[structopt(short, long, help="use 'info' for structure of the record, 'example' for a valid example")]
         usage: InformationMode
     }
 }
