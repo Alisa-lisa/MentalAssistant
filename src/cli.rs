@@ -7,7 +7,10 @@ use std::process;
 use std::vec;
 use crate::traits::SerializeInput;
 use crate::meds;
+use crate::activity;
 use chrono::Utc;
+use std::fs::OpenOptions;
+
 
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
 pub enum EntryType {
@@ -84,29 +87,42 @@ pub enum Tracker {
     }
 }
 
-
-// save user input into providsed csv file accordingly to 
-pub fn save_to_file(information_type: EntryType, input: &str, file: String) -> Result<(), Box<dyn Error>> {
-    // TODO: this kinda makes not that much sense, is it? 
-    // parse raw string into appropriate struct
-    let entry; // technically i should guarantee here parsability or an error
+pub fn prepare_record(information_type: EntryType, input: &str, record: &mut Vec<String>) {
+    let mut args: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+    let res;
     match information_type {
         EntryType::Activity => {
-           panic!("Under construction")
+            res = activity::BaseActivity{name: args.remove(0), 
+                category: Some(args.remove(0)), 
+                timestamp: Utc::now()}.to_vec();
         },
         EntryType::Medication => {
-            let mut args: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
-            // write from_str of DosageUnit 
             // handle missing values + handle proper string validation -> serde?
-            entry = meds::MedikamentationForm{name: args.remove(0), dosage: args.remove(0).parse()?, day_part: None, reason: None, 
-                side_effects: None, unit: meds::MedDosageUnit::MG, timestamp: Utc::now()};
+            res = meds::MedikamentationForm{name: args.remove(0), 
+                dosage: args.remove(0).parse().unwrap_or(0), 
+                day_part: None, 
+                reason: None, 
+                side_effects: None, 
+                unit: meds::MedDosageUnit::MG, 
+                timestamp: Utc::now()}.to_vec();
         },
-    };
-    // save struct into csv
-    let mut wrt = csv::Writer::from_path(file)?;
+    }
+    record.extend(res);
+} 
+
+
+// save user input into providsed csv file accordingly to 
+pub fn save_to_file(information_type: EntryType, input: &str, file_path: String) -> Result<(), Box<dyn Error>> {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(file_path)
+        .unwrap();
+    let mut wrt = csv::Writer::from_writer(file);
     let mut record = Vec::new();
     record.push(information_type.to_string());
-    record.extend(entry.to_vec());
+    prepare_record(information_type, input, &mut record);
     // construct record and write it into writer
     wrt.write_record(&record);
     wrt.flush()?; 

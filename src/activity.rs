@@ -1,5 +1,7 @@
 use chrono::{DateTime, Utc};
 use strum_macros;
+use crate::traits::SerializeInput;
+
 
 // Here i need to save custom categories and show them as well later on with the predefined ones
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
@@ -25,8 +27,16 @@ pub enum BaseActivityCategories {
 pub struct BaseActivity {
     pub name: String,
     pub category: Option<String>, // TODO extend this to show also custom saved categories
-    timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,
 }
+
+impl SerializeInput for BaseActivity {
+    fn to_vec(&self) -> Vec<String> {
+        let resulting_vec = vec![self.name.clone(), self.category.clone().unwrap_or(String::from("")), Utc::now().to_string()];
+        resulting_vec
+    }
+}
+
 
 pub fn show_info(s: &str) -> String {
     if s == "info" {

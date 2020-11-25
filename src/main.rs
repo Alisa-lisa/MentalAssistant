@@ -30,7 +30,7 @@ fn main() {
                    println!("{:?}", meds::show_info(&usage.to_string()));
                 },
                 EntryType::Activity => {
-                    println!("{}", activity::show_info(&usage.to_string()));
+                    println!("{:?}", activity::show_info(&usage.to_string()));
                 },
             }
         }
