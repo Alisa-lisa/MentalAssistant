@@ -88,7 +88,7 @@ pub enum Tracker {
 }
 
 pub fn prepare_record(information_type: EntryType, input: &str, record: &mut Vec<String>) {
-    let mut args: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+    let mut args: Vec<String> = input.split(',').map(|s| s.trim().to_string()).collect();
     let res;
     match information_type {
         EntryType::Activity => {
