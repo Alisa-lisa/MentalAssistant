@@ -1,10 +1,11 @@
 mod meds;
+mod traits;
 mod activity;
 mod cli;
-use cli::{Tracker, EntryType};
+use cli::{Tracker, EntryType, save_to_file};
 use strum::IntoEnumIterator;
 use structopt::StructOpt;
-use chrono;
+use std::process;
 
 fn main() {
     let args = Tracker::from_args();     
@@ -18,7 +19,10 @@ fn main() {
         },
         Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
         Tracker::Save{file, entrytype, data} => {
-            println!("Saving data {:?} of type {:?} to file {:?}", data, entrytype, file);
+            if let Err(err) = save_to_file(entrytype, &data, file) {
+                println!("{}", err);
+                process::exit(1);
+            }
         },
         Tracker::Show{entrytype, usage} => {
             match entrytype {

@@ -1,6 +1,4 @@
 use chrono::{DateTime, Utc};
-use std::str::FromStr;
-use structopt::StructOpt;
 use strum_macros;
 
 // Here i need to save custom categories and show them as well later on with the predefined ones
@@ -26,7 +24,7 @@ pub enum BaseActivityCategories {
 #[derive(Debug)]
 pub struct BaseActivity {
     pub name: String,
-    pub category: Option<BaseActivityCategories>, // TODO extend this to show also custom saved categories
+    pub category: Option<String>, // TODO extend this to show also custom saved categories
     timestamp: DateTime<Utc>,
 }
 

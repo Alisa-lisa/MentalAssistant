@@ -1,13 +1,19 @@
 use std::str::FromStr;
 use structopt::StructOpt;
 use strum_macros;
-
+use std::error::Error;
+use std::io;
+use std::process;
+use std::vec;
+use crate::traits::SerializeInput;
+use crate::meds;
+use chrono::Utc;
 
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
 pub enum EntryType {
-    #[strum(serialize="ActivityTracking: act ")]
+    #[strum(serialize="act")]
     Activity,
-    #[strum(serialize="MedicationConsumption: med ")]
+    #[strum(serialize="med")]
     Medication
 }
 
@@ -78,3 +84,32 @@ pub enum Tracker {
     }
 }
 
+
+// save user input into providsed csv file accordingly to 
+pub fn save_to_file(information_type: EntryType, input: &str, file: String) -> Result<(), Box<dyn Error>> {
+    // TODO: this kinda makes not that much sense, is it? 
+    // parse raw string into appropriate struct
+    let entry; // technically i should guarantee here parsability or an error
+    match information_type {
+        EntryType::Activity => {
+           panic!("Under construction")
+        },
+        EntryType::Medication => {
+            let mut args: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+            // write from_str of DosageUnit 
+            // handle missing values + handle proper string validation -> serde?
+            entry = meds::MedikamentationForm{name: args.remove(0), dosage: args.remove(0).parse()?, day_part: None, reason: None, 
+                side_effects: None, unit: meds::MedDosageUnit::MG, timestamp: Utc::now()};
+            println!("{:?}", &entry);
+        },
+    };
+    // save struct into csv
+    let mut wrt = csv::Writer::from_writer(io::stdout());
+    let mut record = Vec::new();
+    record.push(information_type.to_string());
+    record.extend(entry.to_vec());
+    // construct record and write it into writer
+    wrt.write_record(&record);
+    wrt.flush()?; 
+    Ok(())
+}  

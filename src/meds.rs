@@ -1,8 +1,13 @@
 use chrono::{DateTime, Utc};
+use strum_macros;
+use crate::traits::SerializeInput;
 
-#[derive(Debug)]
+
+#[derive(Debug, strum_macros::ToString, Copy, Clone)]
 pub enum MedDosageUnit {
+    #[strum(serialize="mg")]
     MG,
+    #[strum(serialize="g")]
     G
 }
 
@@ -14,7 +19,22 @@ pub struct MedikamentationForm {
     pub day_part: Option<String>,
     pub reason: Option<String>,
     pub side_effects: Option<String>,
-    timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,  // TODO: write proprt setter to operate on private field in the code
+}
+
+
+impl SerializeInput for MedikamentationForm {
+    fn to_vec(&self) -> Vec<String> {
+        // prepare struct to be saved int csv file
+        // TODO: use default trait?? THIS IS NOT THE WAY TO GO
+        let day_part = self.day_part.clone().unwrap_or(String::from("")); 
+        let reason = self.reason.clone().unwrap_or(String::from("")); 
+        let side_effects = self.side_effects.clone().unwrap_or(String::from("")); 
+        let resulting_vec = vec![self.name.clone(), 
+        self.dosage.clone().to_string(), 
+        self.unit.clone().to_string(), day_part, reason, side_effects, Utc::now().to_string()];
+        resulting_vec
+    }
 }
 
 pub fn show_info(s: &str) -> String {
