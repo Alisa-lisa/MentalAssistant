@@ -65,7 +65,7 @@ pub enum Tracker {
     Info,
     /// Save tracking entiry of a specific type. See 'trackme list' for available tracking types
     Save {
-        #[structopt(short, long)]
+        #[structopt(short, long, help="If the file does not exist, it will be created")]
         file: String,
         #[structopt(short, long)]
         entrytype: EntryType, 
@@ -100,11 +100,10 @@ pub fn save_to_file(information_type: EntryType, input: &str, file: String) -> R
             // handle missing values + handle proper string validation -> serde?
             entry = meds::MedikamentationForm{name: args.remove(0), dosage: args.remove(0).parse()?, day_part: None, reason: None, 
                 side_effects: None, unit: meds::MedDosageUnit::MG, timestamp: Utc::now()};
-            println!("{:?}", &entry);
         },
     };
     // save struct into csv
-    let mut wrt = csv::Writer::from_writer(io::stdout());
+    let mut wrt = csv::Writer::from_path(file)?;
     let mut record = Vec::new();
     record.push(information_type.to_string());
     record.extend(entry.to_vec());
