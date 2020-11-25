@@ -1,15 +1,18 @@
 use chrono::{DateTime, Utc};
 use strum_macros;
 use crate::traits::SerializeInput;
+use std::str::FromStr;
+use strum::EnumString;
 
 
-#[derive(Debug, strum_macros::ToString, Copy, Clone)]
+#[derive(Debug, strum_macros::ToString, EnumString, Clone)]
 pub enum MedDosageUnit {
     #[strum(serialize="mg")]
     MG,
     #[strum(serialize="g")]
     G
 }
+
 
 #[derive(Debug)]
 pub struct MedikamentationForm {
@@ -19,9 +22,52 @@ pub struct MedikamentationForm {
     pub day_part: Option<String>,
     pub reason: Option<String>,
     pub side_effects: Option<String>,
-    pub timestamp: DateTime<Utc>,  // TODO: write proprt setter to operate on private field in the code
+    timestamp: DateTime<Utc>,  // TODO: write proprt setter to operate on private field in the code
 }
 
+impl FromStr for MedikamentationForm {
+    type Err = std::string::ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut args: Vec<String> = s.to_lowercase().split(',').map(|w| w.trim().to_string()).collect();
+        if args.len() < 3 {
+            panic!("Medical record should contain at least 3 non-empty strings devided by ','")
+        };
+        let mut side_effects = None;
+        let mut reason = None;
+        let mut day_part = None;
+        let mut unit = MedDosageUnit::MG;
+        let mut dosage = 0;
+        let mut name = String::from("");
+        match args.len() {
+            6 => {
+                side_effects = args.pop();
+                reason = args.pop();        
+                day_part = args.pop();
+            },
+            5 => {
+                reason = args.pop();        
+                day_part = args.pop();
+            },
+            4 => {
+                day_part = args.pop();
+                unit = MedDosageUnit::from_str(&args.pop().unwrap()).unwrap();
+                dosage = (args.pop().unwrap()).parse::<i32>().unwrap();
+                name = args.pop().unwrap();
+            },
+            3 => {
+                unit = MedDosageUnit::from_str(&args.pop().unwrap()).unwrap();
+                dosage = (args.pop().unwrap()).parse::<i32>().unwrap();
+                name = args.pop().unwrap();
+            },
+            _ => {panic!("The medical record is too short")}
+        };
+    
+
+        Ok(MedikamentationForm{name, dosage, unit, day_part, reason, side_effects, timestamp: Utc::now()})
+    }
+
+}
 
 impl SerializeInput for MedikamentationForm {
     fn to_vec(&self) -> Vec<String> {

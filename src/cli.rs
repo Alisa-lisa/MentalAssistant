@@ -2,13 +2,9 @@ use std::str::FromStr;
 use structopt::StructOpt;
 use strum_macros;
 use std::error::Error;
-use std::io;
-use std::process;
-use std::vec;
 use crate::traits::SerializeInput;
 use crate::meds;
 use crate::activity;
-use chrono::Utc;
 use std::fs::OpenOptions;
 
 
@@ -88,23 +84,26 @@ pub enum Tracker {
 }
 
 pub fn prepare_record(information_type: EntryType, input: &str, record: &mut Vec<String>) {
-    let mut args: Vec<String> = input.split(',').map(|s| s.trim().to_string()).collect();
     let res;
     match information_type {
+        // TODO: propagate error meessage from trait implementation
         EntryType::Activity => {
-            res = activity::BaseActivity{name: args.remove(0), 
-                category: Some(args.remove(0)), 
-                timestamp: Utc::now()}.to_vec();
+            match activity::BaseActivity::from_str(input) {
+                Ok(activity) => {
+                    res = activity.to_vec();
+                },
+                Err(_) => {panic!("{:?} is not a valid input string for Activity form", input)}
+            }
         },
         EntryType::Medication => {
             // handle missing values + handle proper string validation -> serde?
-            res = meds::MedikamentationForm{name: args.remove(0), 
-                dosage: args.remove(0).parse().unwrap_or(0), 
-                day_part: None, 
-                reason: None, 
-                side_effects: None, 
-                unit: meds::MedDosageUnit::MG, 
-                timestamp: Utc::now()}.to_vec();
+            match meds::MedikamentationForm::from_str(input) {
+                Ok(meds) => {
+                        res = meds.to_vec();
+                },
+                Err(_) => {panic!("{:?} is not a valid input string for Medikamentation form", input);
+                }
+            }
         },
     }
     record.extend(res);
@@ -113,7 +112,7 @@ pub fn prepare_record(information_type: EntryType, input: &str, record: &mut Vec
 
 // save user input into providsed csv file accordingly to 
 pub fn save_to_file(information_type: EntryType, input: &str, file_path: String) -> Result<(), Box<dyn Error>> {
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
         .write(true)
         .create(true)
         .append(true)
