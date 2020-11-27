@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use strum_macros;
 use crate::traits::SerializeInput;
 use std::str::FromStr;
-
+use serde::Serialize;
 
 // Here i need to save custom categories and show them as well later on with the predefined ones
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
@@ -24,11 +24,12 @@ pub enum BaseActivityCategories {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub struct BaseActivity {
     pub name: String,
     pub category: Option<String>, // TODO extend this to show also custom saved categories
-    timestamp: DateTime<Utc>,
+    timestamp: String,
 }
 
 impl FromStr for BaseActivity {
@@ -49,7 +50,7 @@ impl FromStr for BaseActivity {
             _ => {panic!("{} is wrong length for base activity record expected 1 to 2 elements devided by ','", args.len())}
         };
 
-        Ok(BaseActivity{name, category, timestamp: Utc::now()})
+        Ok(BaseActivity{name, category, timestamp: Utc::now().to_string()})
     }
 }
 

@@ -9,4 +9,5 @@ clap = "*"
 structopt = "~0.3"
 strum = { version = "0.20", features = ["derive"] }
 strum_macros = "0.20"
+serde = { version = "1", features = ["derive"] }
 csv = "~1.1"

@@ -3,9 +3,11 @@ use strum_macros;
 use crate::traits::SerializeInput;
 use std::str::FromStr;
 use strum::EnumString;
+use serde::Serialize;
 
 
-#[derive(Debug, strum_macros::ToString, EnumString, Clone)]
+#[derive(Debug, strum_macros::ToString, EnumString, Clone, Serialize)]
+#[serde(rename_all="lowercase")]
 pub enum MedDosageUnit {
     #[strum(serialize="mg")]
     MG,
@@ -14,7 +16,8 @@ pub enum MedDosageUnit {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub struct MedikamentationForm {
     pub name: String,
     pub dosage: i32,
@@ -22,8 +25,9 @@ pub struct MedikamentationForm {
     pub day_part: Option<String>,
     pub reason: Option<String>,
     pub side_effects: Option<String>,
-    timestamp: DateTime<Utc>,  // TODO: write proprt setter to operate on private field in the code
+    timestamp: String,  // TODO: write proprt setter to operate on private field in the code
 }
+
 
 impl FromStr for MedikamentationForm {
     type Err = std::string::ParseError;
@@ -40,6 +44,7 @@ impl FromStr for MedikamentationForm {
         let mut dosage = 0;
         let mut name = String::from("");
         match args.len() {
+            // Is it better/faster to use several ifs and use pop -> go over all conditions?
             6 => {
                 side_effects = args.pop();
                 reason = args.pop();        
@@ -64,7 +69,7 @@ impl FromStr for MedikamentationForm {
         };
     
 
-        Ok(MedikamentationForm{name, dosage, unit, day_part, reason, side_effects, timestamp: Utc::now()})
+        Ok(MedikamentationForm{name, dosage, unit, day_part, reason, side_effects, timestamp: Utc::now().to_string()})
     }
 
 }

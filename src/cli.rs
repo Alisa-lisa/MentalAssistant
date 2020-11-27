@@ -83,32 +83,6 @@ pub enum Tracker {
     }
 }
 
-pub fn prepare_record(information_type: EntryType, input: &str, record: &mut Vec<String>) {
-    let res;
-    match information_type {
-        // TODO: propagate error meessage from trait implementation
-        EntryType::Activity => {
-            match activity::BaseActivity::from_str(input) {
-                Ok(activity) => {
-                    res = activity.to_vec();
-                },
-                Err(_) => {panic!("{:?} is not a valid input string for Activity form", input)}
-            }
-        },
-        EntryType::Medication => {
-            // handle missing values + handle proper string validation -> serde?
-            match meds::MedikamentationForm::from_str(input) {
-                Ok(meds) => {
-                        res = meds.to_vec();
-                },
-                Err(_) => {panic!("{:?} is not a valid input string for Medikamentation form", input);
-                }
-            }
-        },
-    }
-    record.extend(res);
-} 
-
 
 // save user input into providsed csv file accordingly to 
 pub fn save_to_file(information_type: EntryType, input: &str, file_path: String) -> Result<(), Box<dyn Error>> {
@@ -118,12 +92,30 @@ pub fn save_to_file(information_type: EntryType, input: &str, file_path: String)
         .append(true)
         .open(file_path)
         .unwrap();
-    let mut wrt = csv::Writer::from_writer(file);
-    let mut record = Vec::new();
-    record.push(information_type.to_string());
-    prepare_record(information_type, input, &mut record);
-    // construct record and write it into writer
-    wrt.write_record(&record);
+    let mut wrt = csv::WriterBuilder::new()
+        .has_headers(false)
+        .flexible(true)
+        .from_writer(file);
+    
+    match information_type {
+        EntryType::Medication => {
+           match meds::MedikamentationForm::from_str(input) {
+                Ok(meds) => {
+                    wrt.serialize(&meds)?;
+                },
+                Err(_) => {panic!("{:?} is not a valid input string for Medikamentation form", input);}
+           }; 
+        },
+        EntryType::Activity => {
+            match activity::BaseActivity::from_str(input) {
+                Ok(activity) => {
+                    wrt.serialize(&activity)?;
+                },
+                Err(_) => {panic!("{:?} is not a valid input string for Activity form", input);},
+            }
+        },
+        _ => {panic!("Improper data type")}
+    };
     wrt.flush()?; 
     Ok(())
 }  
