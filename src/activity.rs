@@ -1,8 +1,9 @@
 use chrono::{DateTime, Utc};
 use strum_macros;
-use crate::traits::SerializeInput;
 use std::str::FromStr;
 use serde::Serialize;
+use crate::cli::InformationMode;
+
 
 // Here i need to save custom categories and show them as well later on with the predefined ones
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
@@ -55,23 +56,15 @@ impl FromStr for BaseActivity {
 }
 
 
-impl SerializeInput for BaseActivity {
-    fn to_vec(&self) -> Vec<String> {
-        let resulting_vec = vec![self.name.clone(), self.category.clone().unwrap_or(String::from("")), Utc::now().to_string()];
-        resulting_vec
-    }
-}
-
-
-pub fn show_info(s: &str) -> String {
-    if s == "info" {
-        format!("Available fields: name: str, category: str")
-    }
-    else if s == "example" {
-        format!("Pole dance, sport")
-
-    }
-    else {
-        panic!("unknown mode")
-    }
+pub fn show_info(s: &InformationMode) -> String {
+    let mut res = String::new();
+    match s {
+        &InformationMode::Info => {
+            res = String::from("Available fields: name: str, category: str");
+        },
+        &InformationMode::Example => {
+            res = String::from("Pole dance, sport");
+        }
+    };
+    res
 }

@@ -1,5 +1,4 @@
 mod meds;
-mod traits;
 mod activity;
 mod cli;
 use cli::{Tracker, EntryType, save_to_file};
@@ -20,17 +19,17 @@ fn main() {
         Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
         Tracker::Save{file, entrytype, data} => {
             if let Err(err) = save_to_file(entrytype, &data, file) {
-                println!("{}", err);
+                println!("Could not save entry due to {}", err);
                 process::exit(1);
             }
         },
         Tracker::Show{entrytype, usage} => {
             match entrytype {
                 EntryType::Medication => {
-                   println!("{:?}", meds::show_info(&usage.to_string()));
+                    println!("{}", meds::show_info(&usage));
                 },
                 EntryType::Activity => {
-                    println!("{:?}", activity::show_info(&usage.to_string()));
+                    println!("{}", activity::show_info(&usage));
                 },
             }
         }

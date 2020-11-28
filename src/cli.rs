@@ -2,7 +2,6 @@ use std::str::FromStr;
 use structopt::StructOpt;
 use strum_macros;
 use std::error::Error;
-use crate::traits::SerializeInput;
 use crate::meds;
 use crate::activity;
 use std::fs::OpenOptions;
@@ -36,7 +35,7 @@ pub enum InformationMode {
     #[strum(serialize="example")]
     Example,
     #[strum(serialize="info")]
-    Strcture 
+    Info 
 }
 
 impl FromStr for InformationMode {
@@ -44,9 +43,9 @@ impl FromStr for InformationMode {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.trim() {
-            "info" => Ok(InformationMode::Strcture),
+            "info" => Ok(InformationMode::Info),
             "example" => Ok(InformationMode::Example),
-            _ => panic!("Unknown intarction mode"),
+            _ => panic!("Unknown interaction mode"),
         }
     }
     
@@ -62,12 +61,15 @@ impl FromStr for InformationMode {
 pub enum Tracker {
     /// Prints out general information about this tool and available tracking approaches
     Info,
-    /// Save tracking entiry of a specific type. See 'trackme list' for available tracking types
+    /// Save data of a specific type. See 'trackme list' for available tracking types
     Save {
+        /// File name, path to the file where to save the record
         #[structopt(short, long, help="If the file does not exist, it will be created")]
         file: String,
+        /// Type of the tracking data to save
         #[structopt(short, long)]
         entrytype: EntryType, 
+        /// Data to track structured accordingly to the chosen type 
         #[structopt(short, long)]
         data: String
 
@@ -76,8 +78,10 @@ pub enum Tracker {
     List,
     /// Show string structure of the specific entry type
     Show {
+        /// Type of the tracking data to save
         #[structopt(short, long, help="use list command to get all available entry types")]
         entrytype: EntryType,
+        /// which information to show: example or a structure of the record required
         #[structopt(short, long, help="use 'info' for structure of the record, 'example' for a valid example")]
         usage: InformationMode
     }
@@ -114,7 +118,6 @@ pub fn save_to_file(information_type: EntryType, input: &str, file_path: String)
                 Err(_) => {panic!("{:?} is not a valid input string for Activity form", input);},
             }
         },
-        _ => {panic!("Improper data type")}
     };
     wrt.flush()?; 
     Ok(())
