@@ -5,8 +5,10 @@ use cli::{Tracker, EntryType, save_to_file};
 use strum::IntoEnumIterator;
 use structopt::StructOpt;
 use std::process;
+use std::error::Error;
 
-fn main() {
+
+fn main() -> Result<(), Box<dyn Error>> {
     let args = Tracker::from_args();     
     match args {
         Tracker::List => {
@@ -16,7 +18,9 @@ fn main() {
             }
             println!("{}", available_forms);
         },
-        Tracker::Info => println!("Here the general info for the project and each tracking will be shown"),
+        Tracker::Info => {
+            println!("Here the general info for the project and each tracking will be shown");
+        },
         Tracker::Save{file, entrytype, data} => {
             if let Err(err) = save_to_file(entrytype, &data, file) {
                 println!("Could not save entry due to {}", err);
@@ -34,5 +38,5 @@ fn main() {
             }
         }
     }
-
+    Ok(())
 }

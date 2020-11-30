@@ -3,6 +3,8 @@ authors = ["alisa <alisa.dammer@gmail.com>"]
 edition = "2018"
 name = "trackme"
 version = "0.1.0"
+
+
 [dependencies]
 chrono = "~0.4.19"
 clap = "*"
@@ -11,3 +13,7 @@ strum = { version = "0.20", features = ["derive"] }
 strum_macros = "0.20"
 serde = { version = "1", features = ["derive"] }
 csv = "~1.1"
+
+[dev-dependencies]
+pretty_assertions = "~0.6"
+assert_cmd = "~1.0"

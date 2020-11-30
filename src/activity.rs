@@ -48,7 +48,10 @@ impl FromStr for BaseActivity {
             1 => {
                 name = args.pop().unwrap();
             },
-            _ => {panic!("{} is wrong length for base activity record expected 1 to 2 elements devided by ','", args.len())}
+            _ => { 
+                println!("Unexpected length of activity string. Got {} eleemnts devided by ','. String should have 1-2 words devided by coma", args.len());
+                std::process::exit(1);
+            }
         };
 
         Ok(BaseActivity{name, category, timestamp: Utc::now().to_string()})

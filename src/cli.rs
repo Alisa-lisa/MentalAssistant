@@ -29,7 +29,6 @@ impl FromStr for EntryType {
     }
 }
 
-
 #[derive(Debug, strum_macros::ToString, strum_macros::EnumIter)]
 pub enum InformationMode {
     #[strum(serialize="example")]
@@ -88,7 +87,6 @@ pub enum Tracker {
 }
 
 
-// save user input into providsed csv file accordingly to 
 pub fn save_to_file(information_type: EntryType, input: &str, file_path: String) -> Result<(), Box<dyn Error>> {
     let file = OpenOptions::new()
         .write(true)
@@ -115,7 +113,10 @@ pub fn save_to_file(information_type: EntryType, input: &str, file_path: String)
                 Ok(activity) => {
                     wrt.serialize(&activity)?;
                 },
-                Err(_) => {panic!("{:?} is not a valid input string for Activity form", input);},
+                Err(_) => {
+                    println!("{:?} is not a valid input string for Activity form", input);
+                    std::process::exit(1);
+                },
             }
         },
     };
