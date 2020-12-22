@@ -3,7 +3,7 @@ use strum_macros;
 
 /// # Medication Tracking
 ///
-/// simple way to collect basic information about the 
+/// simple way to collect basic information about the meds/suppliments/etc  
 ///
 /// TODO: comments can belong to tags like "sideeffect", "reason", "etc" 
 ///
