@@ -1,5 +1,6 @@
 mod meds;
 mod activity;
+mod emotions;
 mod mood;
 mod sleep;
 

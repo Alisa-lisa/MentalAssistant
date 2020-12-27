@@ -1,4 +1,4 @@
-/// Activity tracking
+/// Activity tracking form
 /// ---
 ///
 /// Basic struct with fields describing a simple activity fr further analysis
