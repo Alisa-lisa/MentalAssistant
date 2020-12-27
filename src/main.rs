@@ -1,4 +1,5 @@
 mod meds;
+mod activity;
 mod mood;
 mod sleep;
 
